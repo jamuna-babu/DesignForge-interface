@@ -5,9 +5,10 @@ import torch
 import json
 import requests
 
-from model.llm import get_processed_response_from_llm
+from model.llm import get_llm_response 
 from schema.request import validate_request_schema
-from util import common, pdf_parser, prompt
+from util import pdf_parser
+from util.common import get_json_from_llm_response, get_prompt_for_optimized_sd_prompt, get_prompt_for_widget_layout
 
 
 # ---- CONFIG ----
@@ -54,21 +55,24 @@ def parse_pdf():
     Generates widget-layout based on the specifications in the uploaded PDF-file
     """
     validate_request_schema(request)
-    file = request.files['file']
+    file = request.files.get('file')
     pdf_text = pdf_parser.process_pdf(file)
-    prompt_text = prompt.generate_prompt(pdf_text) 
-    return get_processed_response_from_llm(prompt_text)
+    prompt_text = get_prompt_for_widget_layout(pdf_text) 
+    llm_response = get_processed_response_from_llm(config, prompt_text)
+    return get_json_from_llm_response(llm_response)
 
-@app.route('/llm-json-response', methods=['POST'])
-def get_answers():
+@app.route('/llm-image-prompt', methods=['POST'])
+def get_opt_prompt():
     """
     Returns JSON-response for LLM prompts specifically designed to contain json-code
     """
     validate_request_schema(request)
     # Extract prompt from payload
     payload = request.json
-    prompt = payload["prompt"]
-    return get_processed_response_from_llm(prompt)
+    prompt = payload.get('prompt')
+    theme = payload.get('theme')
+    llm_response = get_llm_response(config, get_prompt_for_optimized_sd_prompt(theme, prompt))
+    return get_json_from_llm_response(llm_response)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0",)
