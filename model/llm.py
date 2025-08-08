@@ -1,5 +1,4 @@
 import requests
-from util.common import get_json_from_llm_response
 
 def get_llm_response(config, prompt):
     url = config.get('llm_url') 

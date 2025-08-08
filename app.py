@@ -7,6 +7,7 @@ import requests
 import sqlite3
 
 from model.llm import get_llm_response 
+from model.stable_diffusion import get_processed_image
 from schema.request import validate_request_schema
 from util import pdf_parser
 from util.common import get_json_from_llm_response, get_prompt_for_optimized_sd_prompt, get_prompt_for_widget_layout
@@ -86,6 +87,12 @@ def get_opt_prompt():
     theme = payload.get('theme')
     llm_response = get_llm_response(config, get_prompt_for_optimized_sd_prompt(theme, prompt))
     return get_json_from_llm_response(llm_response)
+
+@app.route('/sd-image-gen', methods=['POST'])
+def get_image():
+    # TODO: Payload validation
+    payload = request.json
+    return get_processed_image(config, payload)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0",)
