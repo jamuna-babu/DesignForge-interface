@@ -12,7 +12,7 @@ class TemplateAccessor:
         cursor.execute("""
         INSERT INTO templates(id, widget, device, data, created_date, modified_date)
         VALUES(:id, :widget, :device, :layout, datetime('now'), datetime('now'))
-        ON CONFLICT(widget, device) DO UPDATE SET data= json(:layout), modified_date=datetime('now');
+        ON CONFLICT(widget, device) DO UPDATE SET data= :layout, modified_date=datetime('now');
         """, query_params
         )
         self.connection.commit()

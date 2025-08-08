@@ -1,1 +1,1 @@
-from template import manipulate
+from template import accessor

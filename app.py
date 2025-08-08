@@ -9,7 +9,7 @@ import sqlite3
 from model.llm import get_llm_response 
 from model.stable_diffusion import get_processed_image
 from schema.request import validate_request_schema
-from template.manipulate import TemplateAccessor
+from template.accessor import TemplateAccessor
 from util import pdf_parser
 from util.common import get_json_from_llm_response, get_prompt_for_optimized_sd_prompt, get_prompt_for_widget_layout
 
