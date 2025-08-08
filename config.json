@@ -2,7 +2,7 @@
   "stable_diffusion": {
     "path": "/home/d2c-gokulas/Documents/design-forge-models/stable-diffusion-v1-5/"
   },
-  "ip": "107.108.42.44",
+  "ip": "11.11.11.11",
   "llm_model": "gemma3:4b",
   "llm_url": "http://107.108.42.44:11434/api/generate"
 }
