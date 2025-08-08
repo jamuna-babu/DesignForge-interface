@@ -3,7 +3,6 @@ import re
 
 def get_json_from_llm_response(response):
     # Extract only the JSON
-    print(response)
     matches = re.match(r"```json([^`]+)```", response)
     if len(matches.groups()) > 0:
         json_response = matches.group(1)

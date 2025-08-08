@@ -4,6 +4,7 @@ from diffusers import StableDiffusionPipeline
 import torch
 import json
 import requests
+import sqlite3
 
 from model.llm import get_llm_response 
 from schema.request import validate_request_schema
@@ -18,6 +19,11 @@ from util.common import get_json_from_llm_response, get_prompt_for_optimized_sd_
 config = {}
 with open('config.json', 'r') as fp:
     config = json.load(fp)
+# initialize DB
+connection = sqlite3.connect('database.db')
+config['db_connection'] = connection
+with open('database/schema.sql') as f:
+    connection.executescript(f.read())
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +41,13 @@ def hello_world():
     """
     return 'Hello, World!'
 
+@app.route('/<widget>/save-template', methods=['GET'])
+def save_template(widget):
+    """
+    Returns all widgets
+    """
+    pass
+
 @app.route('/get-all-templates', methods=['GET'])
 def get_all_templates():
     """
@@ -42,8 +55,8 @@ def get_all_templates():
     """
     pass
 
-@app.route('/get-template-details', methods=['GET'])
-def get_template_details():
+@app.route('/<widget>/get-template-details', methods=['GET'])
+def get_template_details(widget):
     """
     Returns layout-JSON for the specified widget
     """
@@ -58,7 +71,7 @@ def parse_pdf():
     file = request.files.get('file')
     pdf_text = pdf_parser.process_pdf(file)
     prompt_text = get_prompt_for_widget_layout(pdf_text) 
-    llm_response = get_processed_response_from_llm(config, prompt_text)
+    llm_response = get_llm_response(config, prompt_text)
     return get_json_from_llm_response(llm_response)
 
 @app.route('/llm-image-prompt', methods=['POST'])
