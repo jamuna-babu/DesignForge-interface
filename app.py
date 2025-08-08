@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 from flask_cors import CORS
 from diffusers import StableDiffusionPipeline
 import torch
@@ -9,6 +9,7 @@ import sqlite3
 from model.llm import get_llm_response 
 from model.stable_diffusion import get_processed_image
 from schema.request import validate_request_schema
+from template.manipulate import TemplateAccessor
 from util import pdf_parser
 from util.common import get_json_from_llm_response, get_prompt_for_optimized_sd_prompt, get_prompt_for_widget_layout
 
@@ -21,7 +22,7 @@ config = {}
 with open('config.json', 'r') as fp:
     config = json.load(fp)
 # initialize DB
-connection = sqlite3.connect('database.db')
+connection = sqlite3.connect('database.db', check_same_thread=False)
 config['db_connection'] = connection
 with open('database/schema.sql') as f:
     connection.executescript(f.read())
@@ -42,26 +43,49 @@ def hello_world():
     """
     return 'Hello, World!'
 
-@app.route('/<widget>/save-template', methods=['GET'])
-def save_template(widget):
+@app.route('/save-template', methods=['POST'])
+def save_template():
     """
-    Returns all widgets
+    Save the layout of the device's widget to DB
+    The layout schema is as follows
+    { 
+      "[widget]": {
+        "[device]": {},
+      }
+    } 
     """
-    pass
+    payload = request.json
+    try:
+        template_accessor = TemplateAccessor(connection)
+        template_accessor.save_template(payload)
+        return { "is_successful": True }
+    except Exception as e:
+        print(e)
+        return abort(500, "Template could not be saved")
 
 @app.route('/get-all-templates', methods=['GET'])
 def get_all_templates():
     """
-    Returns all widgets
+    Returns all widgets in the following format
+    { 
+      "[widget_1]": {
+        "[device_1]": {},
+        "[device_2]": {},
+        "[device_3]": {},
+      },
+      "[widget_2]": {
+        "[device_1]": {},
+        "[device_2]": {},
+        "[device_3]": {},
+      },
+    } 
     """
-    pass
-
-@app.route('/<widget>/get-template-details', methods=['GET'])
-def get_template_details(widget):
-    """
-    Returns layout-JSON for the specified widget
-    """
-    pass
+    try:
+        template_accessor = TemplateAccessor(connection)
+        return template_accessor.get_all_templates()
+    except Exception as e:
+        print(e)
+        return abort(500, "Error retrieving templates")
 
 @app.route('/layout-from-pdf', methods=['POST'])
 def parse_pdf():

@@ -1,5 +1,6 @@
 import json
 import re
+import uuid
 
 def get_json_from_llm_response(response):
     # Extract only the JSON
@@ -10,6 +11,15 @@ def get_json_from_llm_response(response):
     else:
         # TODO: Throw errors
         print("No JSON response!")
+
+def get_template_params_for_upsert(payload):
+    print(payload)
+    params = {}
+    params['id'] = str(uuid.uuid4())
+    params['widget'] = list(payload.keys())[0] # 1st level-key
+    params['device'] = list(payload[params['widget']].keys())[0] # 2nd level key
+    params['layout'] = str(payload[params['widget']][params['device']])
+    return params
 
 def get_prompt_for_optimized_sd_prompt(theme_role, sd_prompt):
     instruction = {
