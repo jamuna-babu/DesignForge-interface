@@ -7,7 +7,6 @@ class TemplateAccessor:
 
     def save_template(self, payload):
         query_params = get_template_params_for_upsert(payload)
-        print(query_params)
         cursor = self.connection.cursor()
         cursor.execute("""
         INSERT INTO templates(id, widget, device, data, created_date, modified_date)
@@ -21,7 +20,6 @@ class TemplateAccessor:
         all_templates = self.connection.execute("""
         SELECT * from templates
         """).fetchall()
-        print(all_templates)
         formatted_templates = {}
         for template in all_templates:
             layout = template[1]

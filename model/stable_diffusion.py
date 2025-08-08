@@ -10,6 +10,5 @@ def get_processed_image(config, params):
     }
     #TODO: Check request-body schema for optimization
     response = requests.post(url, json=request_body)
-    print(response)
     sd_response = response.json()
     return sd_response 

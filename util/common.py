@@ -13,7 +13,6 @@ def get_json_from_llm_response(response):
         print("No JSON response!")
 
 def get_template_params_for_upsert(payload):
-    print(payload)
     params = {}
     params['id'] = str(uuid.uuid4())
     params['widget'] = list(payload.keys())[0] # 1st level-key
