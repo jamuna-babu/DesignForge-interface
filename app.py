@@ -1,17 +1,14 @@
 from flask import Flask, request, abort
 from flask_cors import CORS
-from diffusers import StableDiffusionPipeline
-import torch
 import json
-import requests
 import sqlite3
 
-from model.llm import get_llm_response 
+from model.llm import gemma, llama 
 from model.stable_diffusion import get_processed_image
 from schema.request import validate_request_schema
 from template.accessor import TemplateAccessor
 from util import pdf_parser
-from util.common import get_json_from_llm_response, get_prompt_for_optimized_sd_prompt, get_prompt_for_widget_layout
+from prompts import llama_layout, gemma_layout, gemma_image_prompt
 
 
 # ---- CONFIG ----
@@ -87,35 +84,53 @@ def get_all_templates():
         print(e)
         return abort(500, "Error retrieving templates")
 
-@app.route('/layout-from-pdf', methods=['POST'])
-def parse_pdf():
+@app.route('/layout-from-pdf/<version>', methods=['POST'])
+def parse_pdf(version):
     """
     Generates widget-layout based on the specifications in the uploaded PDF-file
     """
     validate_request_schema(request)
     file = request.files.get('file')
+    # get text from pdf
     pdf_text = pdf_parser.process_pdf(file)
-    prompt_text = get_prompt_for_widget_layout(pdf_text) 
-    llm_response = get_llm_response(config, prompt_text)
-    return get_json_from_llm_response(llm_response)
+    # set model based on the 'version' parameter
+    prompt_generator = None
+    model = None
+    if version == 'v1':
+        # Use Gemma
+        prompt_generator = gemma_layout.generate_prompt
+        model = gemma.Gemma(config)
+    else:
+        # Use Llama
+        prompt_generator = llama_layout.generate_prompt
+        model = llama.Llama(config)
+        pass
+    # generate prompt
+    prompt_text = prompt_generator(pdf_text)
+    # get and process response from model
+    processed_response = model.get_and_process_llm_response(prompt_text) 
+    return processed_response
 
 @app.route('/llm-image-prompt', methods=['POST'])
-def get_opt_prompt():
+def get_optimized_prompt():
     """
     Returns JSON-response for LLM prompts specifically designed to contain json-code
+    (Designed to work with Gemma only)
     """
     validate_request_schema(request)
-    # Extract prompt from payload
     payload = request.json
-    prompt = payload.get('prompt')
-    theme = payload.get('theme')
-    llm_response = get_llm_response(config, get_prompt_for_optimized_sd_prompt(theme, prompt))
-    return get_json_from_llm_response(llm_response)
+    # generate prompt
+    prompt_text = gemma_image_prompt.generate_prompt(payload)
+    model = gemma.Gemma(config)
+    # get and process response from model
+    processed_response = model.get_and_process_llm_response(prompt_text) 
+    return processed_response
 
 @app.route('/sd-image-gen', methods=['POST'])
 def get_image():
-    # TODO: Payload validation
+    validate_request_schema(request)
     payload = request.json
+    # TODO: Use object
     return get_processed_image(config, payload)
 
 if __name__ == '__main__':

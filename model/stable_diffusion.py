@@ -1,8 +1,8 @@
 import requests
-from util.common import get_json_from_llm_response
 
+# TODO: Convert to class
 def get_processed_image(config, params):
-    url = config.get('stable_diffusion_url') 
+    url = config.get('stable_diffusion').get('url') 
     request_body = {
             "prompt": params.get('prompt'),
             "width": params.get('width'),

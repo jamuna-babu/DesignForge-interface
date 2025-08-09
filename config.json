@@ -1,9 +1,13 @@
 {
-  "stable_diffusion": {
-    "path": "/home/d2c-gokulas/Documents/design-forge-models/stable-diffusion-v1-5/"
+  "gemma": {
+    "url": "http://111.111.42.44:11434/api/generate",
+    "model": "gemma3:4b"
   },
-  "ip": "11.11.11.11",
-  "llm_model": "gemma3:4b",
-  "llm_url": "http://11.11.11.11:11434/api/generate",
-  "stable_diffusion_url": "http://11.11.11.11:5000/stable_diffusion/generate"
+  "llama": {
+    "url": "http://111.111.42.41:11434/api/generate",
+    "model": "llama3.1"
+  },
+  "stable_diffusion": {
+    "url": "http://111.111.42.46:5000/stable_diffusion/generate"
+  }
 }

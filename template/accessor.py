@@ -1,6 +1,6 @@
-import json
+import uuid
 import ast
-from util.common import get_template_params_for_upsert
+from util.common import get_key_from_singleton_dict
 
 class TemplateAccessor:
     def __init__(self, connection) -> None:
@@ -8,7 +8,7 @@ class TemplateAccessor:
         pass
 
     def save_template(self, payload):
-        query_params = get_template_params_for_upsert(payload)
+        query_params = self.get_template_params_for_upsert(payload)
         cursor = self.connection.cursor()
         cursor.execute("""
         INSERT INTO templates(id, widget, device, data, created_date, modified_date)
@@ -31,3 +31,14 @@ class TemplateAccessor:
                 formatted_templates[widget] = {}
             formatted_templates[widget][device] = ast.literal_eval(layout)
         return formatted_templates
+
+    def get_template_params_for_upsert(self, payload):
+        widget_name = get_key_from_singleton_dict(payload)
+        device_type = get_key_from_singleton_dict(payload.get(widget_name))
+        layout = payload.get(widget_name).get(device_type)
+        return {
+            'id': str(uuid.uuid4()),
+            'widget': widget_name,
+            'device': device_type,
+            'layout': str(layout)
+        }
