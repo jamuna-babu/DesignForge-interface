@@ -1,3 +1,5 @@
+import json
+import ast
 from util.common import get_template_params_for_upsert
 
 class TemplateAccessor:
@@ -27,5 +29,5 @@ class TemplateAccessor:
             device = template[3]
             if widget not in formatted_templates:
                 formatted_templates[widget] = {}
-            formatted_templates[widget][device] = layout
+            formatted_templates[widget][device] = ast.literal_eval(layout)
         return formatted_templates
