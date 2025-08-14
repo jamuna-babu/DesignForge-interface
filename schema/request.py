@@ -29,6 +29,8 @@ def validate_request_schema(request):
             validation_error = LLMRequestSchemaForImagePrompt().validate(payload)
         case '/sd-image-gen':
             payload = request.json
-            validation_error = ImageGenerationSchema().validate(payload)
+            print(payload,"payloadddd")
+            # validation_error = ImageGenerationSchema().validate(payload)
+            print(validation_error,"error in validation")
     if validation_error:
         abort(400, description=str(validation_error))

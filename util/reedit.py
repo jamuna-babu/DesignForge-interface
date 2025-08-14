@@ -12,6 +12,7 @@ import numpy as np
 import json
 
 # ===== CONFIG =====
+#new changes for
 REF_FONTS_DIR = "fonts_ref"
 GROUP_Y_THRESHOLD = 10
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

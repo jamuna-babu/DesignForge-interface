@@ -1,13 +1,13 @@
 {
   "gemma": {
-    "url": "http://111.111.42.44:11434/api/generate",
+    "url": "http://107.108.42.44:11434/api/generate",
     "model": "gemma3:4b"
   },
   "llama": {
-    "url": "http://111.111.42.41:11434/api/generate",
-    "model": "llama3.1"
+    "url": "http://107.97.59.169:5000/api/generate",
+    "model": "llama3"
   },
   "stable_diffusion": {
-    "url": "http://111.111.42.46:5000/stable_diffusion/generate"
+    "url": "http://107.108.42.46:5000/stable_diffusion/generate"
   }
 }

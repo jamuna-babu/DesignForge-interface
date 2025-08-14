@@ -8,6 +8,7 @@ from model.stable_diffusion import get_processed_image
 from schema.request import validate_request_schema
 from template.accessor import TemplateAccessor
 from util import pdf_parser
+from util import reedit
 from prompts import llama_layout, gemma_layout, gemma_image_prompt
 
 
@@ -96,14 +97,18 @@ def parse_pdf(version):
     # set model based on the 'version' parameter
     prompt_generator = None
     model = None
+    print("here")
     if version == 'v1':
         # Use Gemma
         prompt_generator = gemma_layout.generate_prompt
         model = gemma.Gemma(config)
     else:
         # Use Llama
-        prompt_generator = llama_layout.generate_prompt
-        model = llama.Llama(config)
+        print("prompt here")
+        # prompt_generator = llama_layout.generate_prompt
+        # model = llama.Llama(config)
+        prompt_generator = gemma_layout.generate_prompt
+        model = gemma.Gemma(config)
         pass
     # generate prompt
     prompt_text = prompt_generator(pdf_text)
@@ -126,8 +131,18 @@ def get_optimized_prompt():
     processed_response = model.get_and_process_llm_response(prompt_text) 
     return processed_response
 
+@app.route('/process-image-to-edit', methods=['POST'])
+def process_image_to_edit():
+    validate_request_schema(request)
+    file = request.files.get('file')
+    print(file,"file data")
+    result = reedit.process_image(file)
+    return json.dumps(result)
+
+
 @app.route('/sd-image-gen', methods=['POST'])
 def get_image():
+    print("data",request)
     validate_request_schema(request)
     payload = request.json
     # TODO: Use object
